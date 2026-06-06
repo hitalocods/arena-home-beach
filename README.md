@@ -1,4 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arena Home Beach
+
+Base do sistema de reservas da Arena Home Beach, construída com Next.js 16, TypeScript, Tailwind CSS, shadcn/ui, Prisma, Neon PostgreSQL e Vercel Blob.
+
+## Desenvolvimento
+
+```bash
+npm install
+cp .env.example .env.local
+npm run db:generate
+npm run dev
+```
+
+Para criar as tabelas e inserir as cinco quadras iniciais:
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+## Variáveis de ambiente
+
+- `DATABASE_URL`: connection string PostgreSQL fornecida pelo Neon.
+- `BLOB_READ_WRITE_TOKEN`: token da store Vercel Blob.
+
+O layout e as páginas funcionam sem essas variáveis. Banco e upload são habilitados após a configuração.
 
 ## Getting Started
 

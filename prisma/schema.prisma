@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Quadra {
+  id        String     @id @default(cuid())
+  nome      String
+  preco     Decimal    @db.Decimal(10, 2)
+  descricao String?
+  ativa     Boolean    @default(true)
+  reservas  Reservas[]
+  bloqueios Bloqueio[]
+
+  @@map("quadras")
+}
+
+model Reservas {
+  id        String   @id @default(cuid())
+  nome      String
+  telefone  String
+  quadraId  String
+  data      DateTime @db.Date
+  horario   String
+  status    String   @default("PENDENTE")
+  createdAt DateTime @default(now())
+  quadra    Quadra   @relation(fields: [quadraId], references: [id], onDelete: Restrict)
+
+  @@unique([quadraId, data, horario])
+  @@index([data, status])
+  @@map("reservas")
+}
+
+model Bloqueio {
+  id       String   @id @default(cuid())
+  quadraId String
+  data     DateTime @db.Date
+  horario  String
+  motivo   String?
+  quadra   Quadra   @relation(fields: [quadraId], references: [id], onDelete: Cascade)
+
+  @@unique([quadraId, data, horario])
+  @@index([data])
+  @@map("bloqueios")
+}
+
+model Produto {
+  id        String  @id @default(cuid())
+  nome      String
+  preco     Decimal @db.Decimal(10, 2)
+  categoria String
+  imagem    String?
+
+  @@index([categoria])
+  @@map("produtos")
+}
+
+model Banner {
+  id     String  @id @default(cuid())
+  titulo String
+  imagem String
+  ativo  Boolean @default(true)
+
+  @@map("banners")
+}
