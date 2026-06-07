@@ -10,23 +10,40 @@ const courts = [
   { nome: "Quadra 5", preco: 50, descricao: "Quadra de areia para beach tennis." },
 ];
 
-async function main() {
-  for (const court of courts) {
-    const existing = await prisma.quadra.findFirst({
-      where: { nome: court.nome },
-      select: { id: true },
-    });
+const times = [
+  "08:00",
+  "09:00",
+  "10:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+  "22:00",
+];
 
-    if (existing) {
-      await prisma.quadra.update({ where: { id: existing.id }, data: court });
-    } else {
-      await prisma.quadra.create({ data: court });
-    }
-  }
+async function main() {
+  await prisma.$transaction([
+    ...courts.map((court) =>
+      prisma.quadra.upsert({
+        where: { nome: court.nome },
+        update: court,
+        create: court,
+      }),
+    ),
+    ...times.map((time, index) =>
+      prisma.horario.upsert({
+        where: { horario: time },
+        update: { ordem: index, ativo: true },
+        create: { horario: time, ordem: index },
+      }),
+    ),
+  ]);
+
+  console.log(`Seed concluído: ${courts.length} quadras e ${times.length} horários.`);
 }
 
 main()
-  .then(() => console.log("Seed concluído: 5 quadras configuradas."))
   .catch((error) => {
     console.error(error);
     process.exit(1);

@@ -1,61 +1,92 @@
 # Arena Home Beach
 
-Base do sistema de reservas da Arena Home Beach, construída com Next.js 16, TypeScript, Tailwind CSS, shadcn/ui, Prisma, Neon PostgreSQL e Vercel Blob.
+Sistema de reservas e gestão da Arena Home Beach com Next.js 16, Prisma, Neon PostgreSQL e Vercel Blob.
+
+## Instalação
+
+```bash
+npm install
+```
+
+Copie `.env.example` para `.env.local` e configure:
+
+```env
+DATABASE_URL="postgresql://..."
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
+ADMIN_PASSWORD="uma-senha-forte"
+SESSION_SECRET="um-segredo-aleatorio-com-pelo-menos-32-caracteres"
+```
+
+Use a connection string **pooled** do Neon em `DATABASE_URL`, sempre com `sslmode=require`.
+
+## Banco de dados
+
+Para criar uma migration durante o desenvolvimento:
+
+```bash
+npx prisma migrate dev
+```
+
+Para gerar o Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Para inserir as cinco quadras e os horários iniciais:
+
+```bash
+npx prisma db seed
+```
+
+Em produção, aplique migrations versionadas com:
+
+```bash
+npx prisma migrate deploy
+```
+
+Atalhos equivalentes:
+
+```bash
+npm run db:migrate
+npm run db:generate
+npm run db:seed
+npm run db:deploy
+```
 
 ## Desenvolvimento
 
 ```bash
-npm install
-cp .env.example .env.local
-npm run db:generate
 npm run dev
 ```
 
-Para criar as tabelas e inserir as cinco quadras iniciais:
+O painel fica em `/admin`. A autenticação usa cookie `HttpOnly`, assinado com `SESSION_SECRET`.
+
+## Vercel Blob
+
+Crie uma Blob Store no projeto Vercel. A variável `BLOB_READ_WRITE_TOKEN` será disponibilizada automaticamente. Os uploads:
+
+- aceitam JPG, PNG, WebP e AVIF;
+- têm limite de 5 MB;
+- exigem sessão administrativa;
+- retornam URL pública;
+- são salvos nos registros de banners, quadras e produtos.
+
+## Deploy na Vercel
+
+1. Conecte o repositório à Vercel.
+2. Instale Neon e Vercel Blob pelo Marketplace.
+3. Configure `ADMIN_PASSWORD` e `SESSION_SECRET`.
+4. Execute `npx prisma migrate deploy` usando a mesma `DATABASE_URL`.
+5. Faça o deploy.
+
+O script `vercel-build` executa `prisma generate && next build`. Migrations não são executadas durante o build para evitar concorrência entre deployments.
+
+## Validação
 
 ```bash
-npm run db:push
-npm run db:seed
+npm run lint
+npm run build
 ```
 
-## Variáveis de ambiente
-
-- `DATABASE_URL`: connection string PostgreSQL fornecida pelo Neon.
-- `BLOB_READ_WRITE_TOKEN`: token da store Vercel Blob.
-
-O layout e as páginas funcionam sem essas variáveis. Banco e upload são habilitados após a configuração.
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+As regras de reserva são validadas no servidor e protegidas por transação serializável, índice único de quadra/data/horário e verificação de bloqueios.

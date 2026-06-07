@@ -1,20 +1,34 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Waves } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function BrandLogo({ compact = false }: { compact?: boolean }) {
+export function BrandLogo({
+  compact = false,
+  className,
+}: {
+  compact?: boolean;
+  className?: string;
+}) {
   return (
-    <Link href="/" className="group flex items-center gap-2.5" aria-label="Arena Home Beach">
-      <span className="neon-shadow grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:-rotate-3">
-        <Waves className="size-5" strokeWidth={2.6} />
-      </span>
-      <span className={cn("leading-none", compact && "hidden sm:block")}>
-        <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">
-          Arena
-        </span>
-        <span className="mt-1 block text-base font-black tracking-tight text-white">
-          HOME BEACH
-        </span>
+    <Link
+      href="/"
+      className={cn("group block", className)}
+      aria-label="Arena Home Beach"
+    >
+      <span
+        className={cn(
+          "soft-shadow relative block overflow-hidden rounded-2xl border border-black/[0.06] bg-white transition duration-300 group-hover:-translate-y-0.5 group-hover:shadow-[0_16px_40px_rgba(45,75,53,.16)]",
+          compact ? "h-16 w-24 sm:h-18 sm:w-28" : "h-24 w-36",
+        )}
+      >
+        <Image
+          src="/logo.png"
+          alt="Logo Arena Home Beach"
+          fill
+          priority
+          sizes="(max-width: 640px) 128px, 144px"
+          className="object-contain saturate-[.68] contrast-[.9]"
+        />
       </span>
     </Link>
   );

@@ -5,14 +5,24 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum StatusReserva {
+  PENDENTE
+  CONFIRMADA
+  CANCELADA
 }
 
 model Quadra {
   id        String     @id @default(cuid())
-  nome      String
+  nome      String     @unique
   preco     Decimal    @db.Decimal(10, 2)
   descricao String?
+  imagem    String?
   ativa     Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   reservas  Reservas[]
   bloqueios Bloqueio[]
 
@@ -20,50 +30,72 @@ model Quadra {
 }
 
 model Reservas {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   nome      String
   telefone  String
   quadraId  String
-  data      DateTime @db.Date
+  data      DateTime      @db.Date
   horario   String
-  status    String   @default("PENDENTE")
-  createdAt DateTime @default(now())
-  quadra    Quadra   @relation(fields: [quadraId], references: [id], onDelete: Restrict)
+  status    StatusReserva @default(PENDENTE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  quadra    Quadra        @relation(fields: [quadraId], references: [id], onDelete: Restrict)
 
   @@unique([quadraId, data, horario])
   @@index([data, status])
+  @@index([telefone])
   @@map("reservas")
 }
 
 model Bloqueio {
-  id       String   @id @default(cuid())
-  quadraId String
-  data     DateTime @db.Date
-  horario  String
-  motivo   String?
-  quadra   Quadra   @relation(fields: [quadraId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  quadraId  String
+  data      DateTime @db.Date
+  horario   String
+  motivo    String?
+  createdAt DateTime @default(now())
+  quadra    Quadra   @relation(fields: [quadraId], references: [id], onDelete: Cascade)
 
   @@unique([quadraId, data, horario])
   @@index([data])
   @@map("bloqueios")
 }
 
+model Horario {
+  id        String   @id @default(cuid())
+  horario   String   @unique
+  ativo     Boolean  @default(true)
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ativo, ordem])
+  @@map("horarios")
+}
+
 model Produto {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   nome      String
-  preco     Decimal @db.Decimal(10, 2)
+  preco     Decimal  @db.Decimal(10, 2)
   categoria String
   imagem    String?
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([categoria])
+  @@index([categoria, ativo])
   @@map("produtos")
 }
 
 model Banner {
-  id     String  @id @default(cuid())
-  titulo String
-  imagem String
-  ativo  Boolean @default(true)
+  id        String   @id @default(cuid())
+  titulo    String
+  imagem    String
+  ativo     Boolean  @default(true)
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@index([ativo, ordem])
   @@map("banners")
 }

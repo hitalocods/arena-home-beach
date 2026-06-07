@@ -6,9 +6,9 @@ import { CalendarDays, House, MapPin, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/", label: "Início", icon: House },
+  { href: "/", label: "Inicio", icon: House },
   { href: "/reservas", label: "Reservar", icon: CalendarDays },
-  { href: "/cardapio", label: "Cardápio", icon: UtensilsCrossed },
+  { href: "/cardapio", label: "Cardapio", icon: UtensilsCrossed },
   { href: "/localizacao", label: "Local", icon: MapPin },
 ];
 
@@ -16,14 +16,14 @@ export function MobileBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-4 rounded-2xl border border-white/10 bg-[#0b0e0b]/95 p-1.5 shadow-2xl backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-3 bottom-[max(.75rem,env(safe-area-inset-bottom))] z-50 grid grid-cols-4 rounded-[1.4rem] border border-black/[0.06] bg-white/92 p-1.5 shadow-[0_18px_50px_rgba(30,48,35,.16)] backdrop-blur-2xl lg:hidden">
       {items.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}
           className={cn(
-            "flex flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold text-muted-foreground",
-            pathname === href && "bg-primary/12 text-primary",
+            "flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all duration-300",
+            pathname === href && "bg-accent text-accent-foreground",
           )}
         >
           <Icon className="size-4.5" />
